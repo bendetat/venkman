@@ -20,3 +20,5 @@ This is just the electronics - not the chassis. Very early days.
 	- or could use a range of resistors on an analog input
 - perfboard
 - wires lots of wires
+
+![venkman_bb.png](that's a lot of wires)
