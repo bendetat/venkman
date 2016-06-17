@@ -21,4 +21,4 @@ This is just the electronics - not the chassis. Very early days.
 - perfboard
 - wires lots of wires
 
-![venkman_bb.png](that's a lot of wires)
+!(venkman_bb.png)[that's a lot of wires]
