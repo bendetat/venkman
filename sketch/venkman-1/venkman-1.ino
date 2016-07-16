@@ -1,54 +1,29 @@
-/*
- *  Copyright:  DFRobot
- *  name:       DFPlayer_Mini_Mp3 sample code
- *  Author:     lisper <lisper.li@dfrobot.com>
- *  Date:       2014-05-30
- *  Description:    sample code for DFPlayer Mini, this code is test on Uno
- *          note: mp3 file must put into mp3 folder in your tf card
- */
- 
- 
+#include <Arduino_FreeRTOS.h>
+#include <croutine.h>
+#include <event_groups.h>
+#include <FreeRTOSConfig.h>
+#include <FreeRTOSVariant.h>
+#include <list.h>
+#include <mpu_wrappers.h>
+#include <portable.h>
+#include <portmacro.h>
+#include <projdefs.h>
+#include <queue.h>
+#include <semphr.h>
+#include <StackMacros.h>
+#include <task.h>
+#include <timers.h>
 #include <SoftwareSerial.h>
 #include <DFPlayer_Mini_Mp3.h>
 
-const int backPin = 8;
-const int nextPin = 9;
-const int ledPin = 13;
- 
 void setup () {
-  pinMode(backPin, INPUT);
-  pinMode(nextPin, INPUT);
-  pinMode(ledPin, OUTPUT);
-  
-    Serial.begin (9600);
-    mp3_set_serial (Serial);      //set Serial for DFPlayer-mini mp3 module 
-    delay(1);                     // delay 1ms to set volume
-    mp3_set_volume(12);          // value 0~30
-    mp3_play(1);
+  xTaskCreate(inputStateMachineTask, (const portCHAR *)"Input", 128, NULL, 2, NULL);
+  xTaskCreate(lightsTask, (const portCHAR *)"Lights", 128, NULL, 2, NULL);
+  xTaskCreate(cyclotronTask, (const portCHAR *)"Lights", 128, NULL, 2, NULL);
 }
 
-bool backPushed = false;
-bool nextPushed = false;
- 
-void loop () {
-  const int back = digitalRead(backPin) == HIGH;
-    if (back && !backPushed) {
-      backPushed = true;
-      mp3_prev();
-    } else if (!back) {
-      backPushed = false;
-    }
+void loop () {}
 
-    const int next= digitalRead(nextPin) == HIGH;
-    if (next && !nextPushed) {
-      nextPushed = true;
-      mp3_next();
-    } else if (!next) {
-      nextPushed = false;
-    }
-
-    digitalWrite(ledPin, nextPushed || backPushed ? HIGH : LOW);
-}
  
 /*
    mp3_play ();     //start play
