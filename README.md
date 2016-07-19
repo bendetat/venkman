@@ -22,3 +22,16 @@ This is just the electronics - not the chassis. Very early days.
 - wires lots of wires
 
 ![that's a lot of wires](venkman_bb.png)
+
+## Sketchy control flow (WIP)
+
+1. power on, cyclotron idles slowly, red light and wand meter light up
+2. if you turn arm on without the generator you get an alert
+3. discharge triggers vent sound effect (momentary) when cyclotron is off
+4. turn generator on, cyclotron speeds up, white light on wand, generator sound, meter goes up
+5. then arm, sound effect, white light in wand box
+6. discharge triggers sound effect, meter goes down, white light on wand flickers
+7. release triggers sound effect and meter keeps going up
+8. continue firing until meter zeros out and it does the clunk effect
+9. after it is over-discharged, the cyclotron stops, the meter stops going up, and it only does the clunk effect on discharge
+10. need to disarm then rearm to reengage the cyclotron
