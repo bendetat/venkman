@@ -1,0 +1,64 @@
+#include <Arduino_FreeRTOS.h>
+#include "venkman.h"
+#include "CyclotronTask.h"
+
+int cyclotronDelay;
+
+CyclotronTask::CyclotronTask(Lights* lights) {
+  cyclotronDelay = 500;
+  cyclotronStep = -1;
+  lights = lights;
+
+  invalidStateCyclotronSequence[0] = 0b00001111;
+  invalidStateCyclotronSequence[1] = 0b00000000;
+  invalidStateCyclotronSequence[2] = 0b00001111;
+  invalidStateCyclotronSequence[3] = 0b00000000;
+
+  defaultCyclotronSequence[0] = 0b00000001;
+  defaultCyclotronSequence[1] = 0b00000010;
+  defaultCyclotronSequence[2] = 0b00000100;
+  defaultCyclotronSequence[3] = 0b00001000;
+
+  onStateChanged(poweredOn);
+}
+
+void CyclotronTask::start() {
+  //setCyclotronSequence(invalidStateCyclotronSequence);
+  
+  for (;;) loop();
+}
+
+void CyclotronTask::loop() {
+  cyclotronStep ++;
+  if (cyclotronStep == 4) {
+    cyclotronStep = 0;
+  }
+
+  lights->setCyclotronMask(cyclotronSequence[cyclotronStep]);  
+  Serial.println(cyclotronDelay);
+  vTaskDelay(cyclotronDelay / portTICK_PERIOD_MS);
+}
+
+void CyclotronTask::onStateChanged(PackState newState) {
+  Serial.print("cyclotron state change ");
+  Serial.println(newState);
+  
+  if (newState == poweredOn) {
+    setCyclotronSequence(defaultCyclotronSequence);
+    cyclotronDelay = 700;
+  } else if (newState == generatorOn || newState == arming || newState == armed) {
+    setCyclotronSequence(defaultCyclotronSequence);
+    cyclotronDelay = 300;
+  } else {
+    setCyclotronSequence(invalidStateCyclotronSequence);
+    cyclotronDelay = 750;
+  }
+}
+
+void CyclotronTask::setCyclotronSequence(byte newSequence[]) {
+  for (int i = 0; i < 4; i ++) {
+    cyclotronSequence[i] = newSequence[i];
+  }
+}
+
+
