@@ -3,20 +3,20 @@
 #include <DFPlayer_Mini_Mp3.h>
 #include "Sounds.h"
 
-Sounds::Sounds() {
-  idleSampleIndex = 5;
-  humSampleIndex = 4;
-  armingSampleIndex = 0;
+int idleSampleIndex = 5;
+int humSampleIndex = 4;
+int armingSampleIndex = 0;
 
-//  Serial.begin (9600);
-//  mp3_set_serial (Serial);      //set Serial for DFPlayer-mini mp3 module 
-//  delay(1);                     // delay 1ms to set volume
-//  mp3_set_volume(18);          // value 0~30
+
+Sounds::Sounds() {
+  Serial.begin (9600);
+  mp3_set_serial (Serial);      //set Serial for DFPlayer-mini mp3 module 
+  delay(1);                     // delay 1ms to set volume
+  mp3_set_volume(20);          // value 0~30
+    mp3_play(armingSampleIndex);
 }
 
 void Sounds::onStateChanged(PackState newState) {
-  return;
-  
   if (newState == invalidState) {
     mp3_stop();
   } else if (newState == poweredOn) {

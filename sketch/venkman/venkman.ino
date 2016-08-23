@@ -19,10 +19,8 @@
 
 CyclotronTask* cyclotronTask;
 InputStateMachineTask* inputStateMachineTask;
-  
 
 void setup () {
-  Serial.begin(9600);
   Lights* lights = new Lights();
   Sounds* sounds = new Sounds();
   cyclotronTask = new CyclotronTask(lights);

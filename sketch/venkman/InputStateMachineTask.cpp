@@ -3,15 +3,15 @@
 #include "venkman.h"
 #include "InputStateMachineTask.h"
 
+int generatorPin = 11;
+int armPin = 10;
+int firePin = 8;
+bool isGeneratorEngaged = false;
+bool isArmed = false;
+bool isFiring = false;
+PackState currentPackState = poweredOn;
+
 InputStateMachineTask::InputStateMachineTask(CyclotronTask* cyclotronTask, Sounds* sounds) {
-  generatorPin = 11;
-  armPin = 10;
-  firePin = 8;
-  inputIndicatorPin = 12;
-  generatorEngaged = false;
-  armed = false;
-  firing = false;
-  currentPackState = poweredOn;
   cyclotronTask = cyclotronTask;
   sounds = sounds;
 }
@@ -20,13 +20,12 @@ void InputStateMachineTask::start() {
   pinMode(generatorPin, INPUT);
   pinMode(armPin, INPUT);
   pinMode(firePin, INPUT);
-  pinMode(inputIndicatorPin, OUTPUT);
 
-  generatorEngaged = digitalRead(generatorPin);
-  armed = digitalRead(armPin);
-  firing = digitalRead(firePin);
+  isGeneratorEngaged = digitalRead(generatorPin);
+  isArmed = digitalRead(armPin);
+  isFiring = digitalRead(firePin);
 
-  if (generatorEngaged || armed || firing) {
+  if (isGeneratorEngaged || isArmed || isFiring) {
     transitionStateTo(invalidState);
   } else {
     transitionStateTo(poweredOn);
@@ -37,26 +36,25 @@ void InputStateMachineTask::start() {
 
 void InputStateMachineTask::loop() {
   if (digitalRead(generatorPin)) {
-    if (!generatorEngaged) {
-      generatorEngaged = true;
+    if (!isGeneratorEngaged) {
+      isGeneratorEngaged = true;
       transitionStateTo(generatorOn);
     }
-  } else if (generatorEngaged) {
-    generatorEngaged = false;
+  } else if (isGeneratorEngaged) {
+    isGeneratorEngaged = false;
     transitionStateTo(poweredOn);
   }
 
   if (digitalRead(armPin)) {
-    if (!armed) {
-      armed = true;
+    if (!isArmed) {
+      isArmed = true;
       transitionStateTo(arming);
     }
-  } else if (armed) {
-    armed = false;
-    transitionStateTo(generatorEngaged ? generatorOn : poweredOn);
+  } else if (isArmed) {
+    isArmed = false;
+    transitionStateTo(isGeneratorEngaged ? generatorOn : poweredOn);
   }
 
-  //digitalWrite(inputIndicatorPin, generatorEngaged || armed || firing);
   vTaskDelay(10 / portTICK_PERIOD_MS);
 }
 

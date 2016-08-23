@@ -7,10 +7,6 @@
 
 class CyclotronTask {
   private:
-    int cyclotronStep;
-    byte cyclotronSequence[4];
-    byte invalidStateCyclotronSequence[4];
-    byte defaultCyclotronSequence[4];
     Lights* lights;
     void loop();
     void setCyclotronSequence(byte newSequence[]);

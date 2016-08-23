@@ -7,14 +7,6 @@
 
 class InputStateMachineTask {
   private:
-    int generatorPin;
-    int armPin;
-    int firePin;
-    int inputIndicatorPin;
-    bool generatorEngaged;
-    bool armed;
-    bool firing;
-    PackState currentPackState;
     CyclotronTask* cyclotronTask;
     Sounds* sounds;
     void loop();

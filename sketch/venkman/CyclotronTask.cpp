@@ -2,11 +2,13 @@
 #include "venkman.h"
 #include "CyclotronTask.h"
 
-int cyclotronDelay;
+byte cyclotronSequence[4];
+int cyclotronDelay = 500;
+int cyclotronStep = -1;
+byte invalidStateCyclotronSequence[4];
+byte defaultCyclotronSequence[4];
 
 CyclotronTask::CyclotronTask(Lights* lights) {
-  cyclotronDelay = 500;
-  cyclotronStep = -1;
   lights = lights;
 
   invalidStateCyclotronSequence[0] = 0b00001111;
@@ -23,8 +25,6 @@ CyclotronTask::CyclotronTask(Lights* lights) {
 }
 
 void CyclotronTask::start() {
-  //setCyclotronSequence(invalidStateCyclotronSequence);
-  
   for (;;) loop();
 }
 
@@ -35,14 +35,10 @@ void CyclotronTask::loop() {
   }
 
   lights->setCyclotronMask(cyclotronSequence[cyclotronStep]);  
-  Serial.println(cyclotronDelay);
   vTaskDelay(cyclotronDelay / portTICK_PERIOD_MS);
 }
 
 void CyclotronTask::onStateChanged(PackState newState) {
-  Serial.print("cyclotron state change ");
-  Serial.println(newState);
-  
   if (newState == poweredOn) {
     setCyclotronSequence(defaultCyclotronSequence);
     cyclotronDelay = 700;

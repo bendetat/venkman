@@ -5,9 +5,6 @@
 
 class Sounds {
   private:
-    int idleSampleIndex;
-    int humSampleIndex;
-    int armingSampleIndex;
     
   public:
     Sounds();
