@@ -12,7 +12,6 @@ Lights::Lights() {
   }
 }
 
-
 void writeToLights() {
   // TODO replace with shift register
   for (int i = 0; i < 4; i ++) {

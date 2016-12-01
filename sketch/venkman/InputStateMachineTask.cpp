@@ -28,37 +28,86 @@ void InputStateMachineTask::start() {
   if (isGeneratorEngaged || isArmed || isFiring) {
     transitionStateTo(invalidState);
   } else {
-    transitionStateTo(poweredOn);
+    transitionStateTo(initial);
   }
 
-  for(;;) loop();
+  for(;;) {
+    loop();
+    vTaskDelay(10 / portTICK_PERIOD_MS);
+  }
 }
 
 void InputStateMachineTask::loop() {
-  if (digitalRead(generatorPin)) {
+  bool generatorPinHigh = digitalRead(generatorPin);
+  bool armPinHigh = digitalRead(armPin);
+  bool firePinHigh = digitalRead(firePin);
+  
+  if (generatorPinHigh) {
     if (!isGeneratorEngaged) {
       isGeneratorEngaged = true;
       transitionStateTo(generatorOn);
+      return;
     }
   } else if (isGeneratorEngaged) {
     isGeneratorEngaged = false;
     transitionStateTo(poweredOn);
+    return;
   }
 
-  if (digitalRead(armPin)) {
+  if (armPinHigh) {
     if (!isArmed) {
       isArmed = true;
+
+      if (!isGeneratorEngaged) {
+        transitionStateTo(shutDown);
+        return;
+      }
+      
       transitionStateTo(arming);
+      vTaskDelay(5000 / portTICK_PERIOD_MS);
+      transitionStateTo(armed);
+      
+      return;
     }
   } else if (isArmed) {
     isArmed = false;
     transitionStateTo(isGeneratorEngaged ? generatorOn : poweredOn);
+
+    return;
   }
 
-  vTaskDelay(10 / portTICK_PERIOD_MS);
+  if (firePinHigh) {
+    if (!isFiring) {
+      isFiring = true;
+      
+      if (!isArmed || !isGeneratorEngaged) {
+        transitionStateTo(shutDown);
+        return;
+      }
+
+      transitionStateTo(firing);
+      return;
+    }
+  } else if (isFiring) {
+    isFiring = false;
+    transitionStateTo(!isArmed || !isGeneratorEngaged ? initial : endingFiring);
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
+
+    return;
+  }
+
+  if (!isGeneratorEngaged && !isArmed && !isFiring) {
+    transitionStateTo(initial);
+  }
 }
 
 void InputStateMachineTask::transitionStateTo(PackState newState) {
+  if (currentPackState == newState) return;
+  
+  digitalWrite(13, HIGH);
+  vTaskDelay(50 / portTICK_PERIOD_MS);
+  digitalWrite(13, LOW);
+  
   cyclotronTask->onStateChanged(newState);
   sounds->onStateChanged(newState);
 

@@ -39,10 +39,10 @@ void CyclotronTask::loop() {
 }
 
 void CyclotronTask::onStateChanged(PackState newState) {
-  if (newState == poweredOn) {
+  if (newState == initial || newState == poweredOn || newState == shutDown) {
     setCyclotronSequence(defaultCyclotronSequence);
     cyclotronDelay = 700;
-  } else if (newState == generatorOn || newState == arming || newState == armed) {
+  } else if (newState == generatorOn || newState == arming || newState == armed || newState == firing || newState == endingFiring) {
     setCyclotronSequence(defaultCyclotronSequence);
     cyclotronDelay = 300;
   } else {

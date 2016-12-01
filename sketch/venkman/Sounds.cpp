@@ -3,40 +3,43 @@
 #include <DFPlayer_Mini_Mp3.h>
 #include "Sounds.h"
 
-int idleSampleIndex = 5;
+SoftwareSerial soundSerial(2, 3);
+int endFireSampleIndex = 2;
+int firingSampleIndex = 3;
 int humSampleIndex = 4;
-int armingSampleIndex = 0;
-
+int idleSampleIndex = 5;
+int shutDownSampleIndex = 6;
+int armingSampleIndex = 7;
 
 Sounds::Sounds() {
-  Serial.begin (9600);
-  mp3_set_serial (Serial);      //set Serial for DFPlayer-mini mp3 module 
+  soundSerial.begin (9600);
+  mp3_set_serial (soundSerial);      //set Serial for DFPlayer-mini mp3 module 
   delay(1);                     // delay 1ms to set volume
   mp3_set_volume(20);          // value 0~30
-    mp3_play(armingSampleIndex);
+  pinMode(13, OUTPUT);
 }
 
 void Sounds::onStateChanged(PackState newState) {
-  if (newState == invalidState) {
-    mp3_stop();
-  } else if (newState == poweredOn) {
-    mp3_play(idleSampleIndex);
-    mp3_single_loop(false);
-  } else if (newState == generatorOn) {
-    digitalWrite(12, HIGH);
-    mp3_play(humSampleIndex);
-    mp3_single_loop(false);
-  } else if (newState == arming) {
-    digitalWrite(12, LOW);
-    mp3_play(armingSampleIndex);
+  //mp3_stop();
+  
+  if (newState == initial || newState == poweredOn) {
     mp3_single_loop(true);
-    //todo transition to armed
-  } else if (newState == armed) {
     mp3_play(humSampleIndex);
+  } else if (newState == generatorOn || newState == armed) {
+    mp3_single_loop(true);
+    mp3_play(idleSampleIndex);
+  } else if (newState == arming) {
+    mp3_single_loop(true);
+    mp3_play (armingSampleIndex);
+  } else if (newState == firing) {
     mp3_single_loop(false);
-  } else {
-    // unimplemented state
-    mp3_stop();
+    mp3_play(firingSampleIndex);
+  } else if (newState == endingFiring) {
+    mp3_single_loop(true);
+    mp3_play (endFireSampleIndex);
+  } else if (newState == shutDown) {
+    mp3_single_loop(true);
+    mp3_play(shutDownSampleIndex);
   }
 }
 

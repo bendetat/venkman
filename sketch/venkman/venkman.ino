@@ -23,6 +23,7 @@ InputStateMachineTask* inputStateMachineTask;
 void setup () {
   Lights* lights = new Lights();
   Sounds* sounds = new Sounds();
+  
   cyclotronTask = new CyclotronTask(lights);
   inputStateMachineTask = new InputStateMachineTask(cyclotronTask, sounds);
   
